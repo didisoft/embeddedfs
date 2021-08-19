@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Comment CommentText="Embedded File System&#xD;&#xA;&#xD;&#xA;In-Memory or in a File">
+    <Position X="4.448" Y="1.49" Height="0.75" Width="2.242" />
+  </Comment>
+  <Class Name="EmbeddedFS.EmDriveInfo" Collapsed="true">
+    <Position X="2.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAgBACAAgIIGIIAAAQAEAAAAAAEATQgCwIIAAAA=</HashCode>
+      <FileName>EmDriveInfo.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EmbeddedFS.EmFileInfo" Collapsed="true">
+    <Position X="5.25" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACABAAgAAAIAAIAAAAAATBAAEogFAAIIgAAAAAMCA=</HashCode>
+      <FileName>EmFileInfo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EmbeddedFS.EmDirectoryInfo" Collapsed="true">
+    <Position X="2.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAEAgAAAACAEAAAAQASAAAEIgEAAAYAAAAgAABA=</HashCode>
+      <FileName>EmDirectoryInfo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EmbeddedFS.EmDirectory" Collapsed="true">
+    <Position X="2" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAIEAAJAACAAAAAAAAAAAAAEAAIAEQAAgAA0CARA=</HashCode>
+      <FileName>EmDirectory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EmbeddedFS.EmFile" Collapsed="true">
+    <Position X="5.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABCAIACgJEICEQIACFEAABEAhFwANQGYAAgAAESACA=</HashCode>
+      <FileName>EmFile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EmbeddedFS.EmFileSystemInfo" Collapsed="true">
+    <Position X="3.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAABIACAAIgAAEQAAAQQAAAEEQAAFAAAgAEAQAA=</HashCode>
+      <FileName>EmFileSystemInfo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
