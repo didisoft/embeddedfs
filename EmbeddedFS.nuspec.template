@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>@NAME@</id>
+        <version>@VERSION@</version>
+        <title>EmbeddedFS for .NET</title>
+        <authors>DidiSoft Inc Eood</authors>
+		<owners>DidiSoft Inc Eood</owners>
+		<!--licenseUrl>https://www.didisoft.com/external/net/EULA.rtf</licenseUrl-->
+		<license type="file">license\EULA.txt</license>
+		<projectUrl>https://www.didisoft.com/embeddedfs/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>
+		DidiSoft EmbeddedFS is a managed .NET filesystem contained in a single file or completely in-memory. Its API is very close to the one provided by System.IO.
+		
+		This is a paid commercial product with a free 30-day trial:
+		- Trial mode: Download this package
+		- Licensed mode: Purchase the product at https://www.didisoft.com/embeddedfs/#purchase
+				
+		Documentation: https://www.didisoft.com/embeddedfs/examples/
+		
+		Fully supported platforms:
+		- .NET Framework 4.0, 4.5.x, 4.6.x, 4.7.x, 4.8.x
+		- .NET Framework 2.0, 3.0, 3.5, 3.5 SP1
+		- .NET Core 2.0, 2.1, 2.2
+		- .NET 5
+		- Xamarin.iOS, Xamarin.Mac, Xamarin.Android
+		- Universal Windows Platform (UWP)
+		
+		</description>
+		<summary>An embedded filesystem contained in a single file or in-memory</summary>		
+        <copyright>Copyright © 2006-2021 DidiSoft Inc Eood</copyright>
+
+        <tags>embedded file system</tags>
+		
+		<releaseNotes></releaseNotes>
+		
+    </metadata>
+    <files>
+		<!--
+		https://docs.nuget.org/create/enforced-package-conventions
+		-->
+		<file src="License\EULA.txt" target="license" />
+		
+        <file src="BinSigned\NET45\EmbeddedFS.dll" target="lib\net45" />
+		<file src="Bin\NET45\EmbeddedFS.xml" target="lib\net45" />
+
+        <file src="BinSigned\NET50\EmbeddedFS.dll" target="lib\net50" />
+		<file src="Bin\NET50\EmbeddedFS.xml" target="lib\net50" />
+		
+        <file src="Bin\NetStandard2.0\EmbeddedFS.dll" target="lib\netstandard2.0" />
+		<file src="Bin\NetStandard2.0\EmbeddedFS.xml" target="lib\netstandard2.0" />
+
+        <file src="Bin\NetStandard2.1\EmbeddedFS.dll" target="lib\netstandard2.1" />
+		<file src="Bin\NetStandard2.1\EmbeddedFS.xml" target="lib\netstandard2.1" />
+		
+    </files>
+</package>

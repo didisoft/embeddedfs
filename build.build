@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="embeddedfs" default="build" basedir=".">
+
+    <property name="trial_version" value="" />
+
+	<property name="version" value="1_0" />
+	<property name="major.version" value="1.0" />
+	<property name="minor.version" value="1" />
+	<property name="prod.minor.version" value="10" /> <!-- 10, 20, 30, ... prod is (prod.minor.version +5) -->
+	<property name="trial.increment" value="1" /> <!-- 1,2,3,4(max) then prod.minor.version -->
+
+    <property name="file" value="embeddedfs.zip" />
+	<property name="file_prod" value="EmbeddedFS_${version}_Production.zip" />
+	<property name="file_src" value="EmbeddedFS_${version}_Enterprise.zip" />
+	
+	<property name="msbuild86" value="C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe" />
+	<property name="msbuild" value="C:\Program Files (x86)\MSBuild\14.0\bin\msbuild.exe" />
+	<property name="msbuild2017" value="C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\msbuild.exe" />
+	<property name="msbuild2019" value="C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\msbuild.exe" />
+	<property name="dotnet" value="dotnet" />
+	<property name="obfuscator" value="C:\Program Files (x86)\Eazfuscator.NET\Eazfuscator.NET.exe" />
+	<property name="signtool" value="C:\Programs\signtool\signtool.exe" />
+	<property name="innosetup" value="C:\Program Files (x86)\Inno Setup 6" />
+	<property name="nuget" value="..\PGPNet\PGPNet\packages\NuGet.CommandLine.4.3.0\tools\nuget.exe" />
+	
+    <fileset id="examples" basedir="Examples">
+    	<include name="**/*.*" />
+		<exclude name="**/bin/**" />
+		<exclude name="**/obj/**" />
+    </fileset>
+
+	<target name="clean">
+	    <delete dir="Setup/Output"></delete>			
+	</target>
+	
+	<target name="obfuscate-exec">	
+		<mkdir dir="Bin\${exec_target}"></mkdir>
+		<mkdir dir="BinSigned\${exec_target}"></mkdir>
+
+		<exec program="${obfuscator}" failonerror="false">
+			<arg value="-k"/>
+			<arg value="..\PGPNet\pgpnet.snk"/>
+            <arg value="EmbeddedFS\bin\Release\${exec_target}\EmbeddedFS.dll"/>
+			<arg value="--msbuild-project-path"/>
+			<arg value="EmbeddedFS\EmbeddedFS.csproj"/>			
+			<arg value="-o"/>
+			<arg value="BinSigned\${exec_target}\EmbeddedFS.dll"/>
+        </exec>		
+		<exec program="${obfuscator}" failonerror="true">
+            <arg value="EmbeddedFS\bin\Release\${exec_target}\EmbeddedFS.dll"/>
+			<arg value="--msbuild-project-path"/>
+			<arg value="EmbeddedFS\EmbeddedFS.csproj"/>			
+			<arg value="-o"/>
+			<arg value="Bin\${exec_target}\EmbeddedFS.dll"/>
+        </exec>		
+	</target>	
+	
+	<target name="obfuscate">	
+		<delete dir="Bin"></delete>
+		<delete dir="BinSigned"></delete>
+		<mkdir dir="Bin"></mkdir>
+		<mkdir dir="BinSigned"></mkdir>
+	
+		<property name="exec_target" value="net45" />
+		<call target="obfuscate-exec"></call>
+
+		<property name="exec_target" value="net50" />
+		<call target="obfuscate-exec"></call>
+		
+		<property name="exec_target" value="netstandard2.0" />
+		<call target="obfuscate-exec"></call>
+
+		<property name="exec_target" value="netstandard2.1" />
+		<call target="obfuscate-exec"></call>
+	</target>	
+
+	<target name="sign">	
+			<exec program="..\StrongNameSigner\src\Brutal.Dev.StrongNameSigner.Console\bin\Debug\StrongNameSigner.Console.exe" failonerror="true">
+			<arg value="-in" />			
+			<arg value="Bin\" />			
+			<arg value="-out" />			
+			<arg value="BinSigned\" />			
+			<arg value="-k" />			
+			<arg value="..\PGPNet\pgpnet.snk" />			
+		</exec>				
+	</target>	
+	
+	<target name="compile">	
+        <exec program="${msbuild2019}" failonerror="true">
+		    <arg value="EmbeddedFS\EmbeddedFS.csproj" />
+			<arg value="/p:Configuration=Release" />
+			<arg value="/t:Rebuild" />
+			<arg value='/p:DefineConstants="${trial_version}"' />
+			<arg value="/nologo" />			
+		</exec>			
+	</target>
+	
+    <target name="compile-netstandard">	
+        <!--exec program="${msbuild2017}" failonerror="true">
+		    <arg value="OpenSSLStandard16\OpenSSLStandard16.csproj" />
+			<arg value="/p:Configuration=Release" />
+			<arg value="/p:OutputPath=${directory::get-current-directory()}\Bin\NetStandard16" />
+			<arg value="/p:DebugType=none" />
+			<arg value="/p:DocumentationFile=${directory::get-current-directory()}\Bin\NetStandard16\DidiSoft.OpenSsl.xml" />
+			<arg value='/p:DefineConstants="${trial_version};NETSTANDARD;ENABLE_CRYPTO;USE_HTTP_CLIENT;NETSTANDARD1_6"' />
+			<arg value="/t:Rebuild" />
+			<arg value="/nologo" />			
+		</exec-->	
+        <exec program="${msbuild2017}" failonerror="true">
+		    <arg value="OpenSSLStandard20\OpenSSLStandard20.csproj" />
+			<arg value="/p:Configuration=Release" />
+			<arg value="/p:OutputPath=${directory::get-current-directory()}\Bin\NetStandard20" />
+			<arg value="/p:DebugType=none" />
+			<arg value="/p:DocumentationFile=${directory::get-current-directory()}\Bin\NetStandard20\DidiSoft.OpenSsl.xml" />
+			<arg value='/p:DefineConstants="${trial_version};ENABLE_CRYPTO;USE_HTTP_CLIENT;NETSTANDARD;NETSTANDARD2_0;"' />
+			<arg value="/t:Rebuild" />
+			<arg value="/nologo" />			
+		</exec>	
+        <exec program="${msbuild2019}" failonerror="true">
+		    <arg value="OpenSSLStandard21\OpenSSLStandard21.csproj" />
+			<arg value="/p:Configuration=Release" />
+			<arg value="/p:OutputPath=${directory::get-current-directory()}\Bin\NetStandard21" />
+			<arg value="/p:DebugType=none" />
+			<arg value="/p:DocumentationFile=${directory::get-current-directory()}\Bin\NetStandard21\DidiSoft.OpenSsl.xml" />
+			<arg value='/p:DefineConstants="${trial_version};ENABLE_CRYPTO;USE_HTTP_CLIENT;NETSTANDARD;NETSTANDARD2_1;"' />
+			<arg value="/t:Rebuild" />
+			<arg value="/nologo" />			
+		</exec>	
+	</target>	
+
+    <target name="update-version">	        	
+		<property
+		  name="AssemblyInfo.cs"
+		  value="${assembly.location}" />
+		<loadfile file="${AssemblyInfo.cs}" property="AssemblyInfo.cs.content" />
+		<regex
+		  input="${AssemblyInfo.cs.content}"
+		  pattern="(?'before'[\w\s\W]*)\[assembly\: AssemblyVersion\(&quot;([0-9.]+)&quot;\)\](?'after'[\w\s\W]*)" />
+		<echo
+		  file="${AssemblyInfo.cs}"
+		  message="${before}[assembly: AssemblyVersion(&quot;${build.version}&quot;)]${after}"
+		  append="false" />
+	</target>	  
+	
+	<target name="build">
+		<property name="build.version" value="${major.version}.${minor.version}.${int::parse(prod.minor.version) + int::parse(trial.increment)}" />
+		<property name="trial_version" value="TRIAL_VERSION" />
+		<call target="clean"></call>
+		<call target="compile"></call>
+
+		<call target="obfuscate"></call> 
+		
+		<delete file="${file}"></delete>
+		<delete dir="Setup\Output"></delete>
+
+		<call target="delete-compiled-examples"></call>		
+		
+        <exec program="c:\Windows\System32\makecab.exe" failonerror="true">
+            <arg value="EmbeddedFS/VsDoc/EmbeddedFS.mshc"/>
+            <arg value="EmbeddedFS/VsDoc/EmbeddedFS.cab"/>
+        </exec>
+
+        <exec program="${signtool}" failonerror="true">
+            <arg value="sign"/>
+			<arg value="/f"/>
+			<arg value="../didisoft.inc.2023.pfx"/>
+			<arg value="/p"/>
+			<arg value="initinit"/>
+            <arg value="/d"/>
+			<arg value="EmbeddedFS Help file"/>
+			<arg value="/v"/>
+			<arg value="EmbeddedFS/VsDoc/EmbeddedFS.cab"/>
+        </exec>
+		
+        <exec program="${innosetup}\iscc.exe" failonerror="true">
+			<arg value="/DOutputBaseFilename=EmbeddedFS_Setup_Trial"/>
+            <arg line="/DVersion=${major.version}"/>
+            <arg value="Setup/Setup_EmbeddedFS.iss"/>			
+        </exec>
+
+		<call target="sign-exe"></call>
+		
+    	<zip zipfile="${file}">		
+    		<fileset basedir=".">
+			  <include name="ReleaseNotes.txt" />
+			</fileset>
+    		<fileset basedir="Setup\Output">
+			  <include name="*.exe" />
+			</fileset>
+    	</zip>					
+	</target>
+
+	<target name="build-prod">
+		<property name="build.version" value="${major.version}.${minor.version}.${int::parse(prod.minor.version) +5 + int::parse(trial.increment)}" />
+		<property name="trial_version" value="" />
+		<call target="clean"></call>
+		<call target="compile"></call>
+		<call target="compile-netstandard"></call>
+		
+		<call target="sn"></call>
+		
+		<delete file="${file_prod}"></delete>		
+
+		<delete dir="Setup\Output"></delete>
+		<call target="delete-compiled-examples"></call>
+
+        <exec program="c:\Windows\System32\makecab.exe" failonerror="true">
+            <arg value="Setup/Help/DidiSoft.OpenSsl.mshc"/>
+            <arg value="Setup/Help/DidiSoft.OpenSsl.cab"/>
+        </exec>
+
+        <exec program="${signtool}" failonerror="true">
+            <arg value="sign"/>
+			<arg value="/f"/>
+			<arg value="../didisoft.inc.2023.pfx"/>
+			<arg value="/p"/>
+			<arg value="initinit"/>
+            <arg value="/d"/>
+			<arg value="OpenSSL for .NET"/>
+			<arg value="/v"/>
+			<arg value="Setup/Help/DidiSoft.OpenSsl.cab"/>
+        </exec>
+		
+        <exec program="${innosetup}\iscc.exe" failonerror="true">
+			<arg value="/FOpenSSL_Library_Pro_Setup_${version}"/>
+            <arg value="Setup/Setup_OpenSSL.iss"/>
+			<arg line="/dVersion=${major.version}"/>			
+        </exec>
+
+		<call target="sign-exe"></call>
+		
+    	<zip zipfile="${file_prod}">
+    		<fileset basedir="Setup\Output">
+			  <include name="*.exe" />
+			</fileset>
+    	</zip>	
+	</target>
+
+	<target name="build-src">
+		<property name="build.version" value="${major.version}.${minor.version}.${int::parse(prod.minor.version) +5 + int::parse(trial.increment)}" />
+		<property name="trial_version" value="" />
+		<call target="clean"></call>
+		<call target="compile"></call>
+		<call target="compile-netstandard"></call>
+		
+		<call target="sn"></call>
+		
+		<delete file="${file_src}"></delete>		
+
+		<call target="source"></call>
+
+		<delete dir="Setup\Output"></delete>
+		<call target="delete-compiled-examples"></call>
+
+        <exec program="c:\Windows\System32\makecab.exe" failonerror="true">
+            <arg value="Setup/Help/DidiSoft.OpenSsl.mshc"/>
+            <arg value="Setup/Help/DidiSoft.OpenSsl.cab"/>
+        </exec>
+
+        <exec program="${signtool}" failonerror="true">
+            <arg value="sign"/>
+			<arg value="/f"/>
+			<arg value="../didisoft.inc.2023.pfx"/>
+			<arg value="/p"/>
+			<arg value="initinit"/>
+            <arg value="/d"/>
+			<arg value="OpenSSL for .NET"/>
+			<arg value="/v"/>
+			<arg value="Setup/Help/DidiSoft.OpenSsl.cab"/>
+        </exec>
+		
+        <exec program="${innosetup}\iscc.exe" failonerror="true">
+			<arg value="/FOpenSSL_Library_Enterprise_Setup_${version}"/>
+            <arg value="Setup/Setup_OpenSSL_src.iss"/>			
+			<arg line="/dVersion=${major.version}"/>
+        </exec>
+
+		<call target="sign-exe"></call>
+		
+    	<zip zipfile="${file_src}">
+    		<fileset basedir="Setup\Output">
+			  <include name="*.exe" />
+			</fileset>
+    	</zip>	
+		
+		<!--zipfileset dir="SfxExtract\SfxExtract\SfxTmp" includes="**/*.cs,**/*.csproj" prefix="Source/SfxLobbySource" /-->
+	</target>
+
+	<target name="source">	
+		<zip zipfile="Source.zip">
+    		<fileset basedir="OpenSSLNet" prefix="OpenSSLNet">
+			  <include name="**/*.cs" />
+			  <include name="**/*.csproj" />
+			</fileset>
+    		<fileset basedir="OpenSSLStandard16" prefix="OpenSSLNet.NetStandard16">
+			  <include name="**/*.cs" />
+			  <include name="**/*.csproj" />
+			</fileset>
+    		<fileset basedir="OpenSSLStandard20" prefix="OpenSSLNet.NetStandard20">
+			  <include name="**/*.cs" />
+			  <include name="**/*.csproj" />
+			</fileset>
+			
+    		<fileset basedir="..\PGPNet\BouncyCastle18\crypto" prefix="BouncyCastle18\crypto">
+			  <include name="**/*.cs" />
+			  <include name="**/*.csproj" />
+			</fileset>
+			
+    		<fileset basedir="Setup\SetupFiles">
+				<include name="Source.BouncyCastle.txt" />
+				<include name="Source.DidiSoft.OpenSsl.txt" />				
+			</fileset>			
+		</zip>
+	</target>	
+	
+	<!-- 
+	nuget pack PGPNet.nuspec
+	C:\Projects\PGPNet>nuget push DidiSoft.Pgp.1.7.15.6.nupkg -apikey 98BB81B7-7552-71DC-B1C4-D1B38B92D399 -Source https://didisoft.com/nuget/upload
+	-->
+	<target name="nuget">
+		<property name="nuget_file_version" value="${assemblyname::get-version(assemblyname::get-assembly-name('Bin\net45\EmbeddedFS.dll'))}" />
+		<echo message="${nuget_file_version}" />
+		
+		<loadfile file="EmbeddedFS.nuspec.template" property="theMacrosFileContents">
+			<filterchain>
+				<replacetokens>					
+				    <token key="NAME" value="${nuget_package}" />
+					<token key="VERSION" value="${nuget_file_version}" />
+				</replacetokens>
+			</filterchain>
+		</loadfile>
+		<echo file="EmbeddedFS.nuspec" message="${theMacrosFileContents}" />
+		
+        <exec program="${nuget}" failonerror="true">
+            <arg value="pack"/>
+            <arg value="EmbeddedFS.nuspec"/>
+			<arg value="-OutputDirectory"/>
+			<arg value="Bin\NuGet"/>
+			<arg value="-Verbosity"/>
+			<arg value="detailed"/>
+        </exec>	
+        <exec program="${nuget}" failonerror="true">
+            <arg value="push"/>
+            <arg value="Bin\NuGet\${nuget_package}.${nuget_file_version}.nupkg"/>
+			<arg value="-apikey"/>
+			<arg value="${nuget_key}"/>
+			<arg value="-Source"/>
+			<arg value="${nuget_url}"/>
+        </exec>
+	</target>	
+	
+	<target name="sign-exe">
+	    <exec program="${signtool}" failonerror="true">
+            <arg value="sign"/>
+			<arg value="/f"/>
+			<arg value="../didisoft.inc.2023.pfx"/>
+			<arg value="/p"/>
+			<arg value="initinit"/>
+            <arg value="/d"/>
+			<arg value="EmbeddedFS for .NET Setup"/>
+            <arg value="/du"/>
+			<arg value="https://www.didisoft.com"/>			
+			<arg value="/t"/>
+			<arg value="http://timestamp.comodoca.com/authenticode"/>
+			<arg value="/v"/>
+			<arg value="Setup\Output\*.exe"/>
+        </exec>
+		<!-- additional SHA-256 signature for Windows 7 and above, as of 1st Jan 2016 -->
+	    <exec program="${signtool}" failonerror="true">
+            <arg value="sign"/>
+			<arg value="/f"/>
+			<arg value="../didisoft.inc.2023.pfx"/>
+			<arg value="/p"/>
+			<arg value="initinit"/>
+			<arg value="/fd"/>
+			<arg value="sha256"/>
+            <arg value="/d"/>
+			<arg value="EmbeddedFS for .NET Setup"/>
+            <arg value="/du"/>
+			<arg value="https://www.didisoft.com"/>			
+			<arg value="/tr"/>
+			<arg value="http://timestamp.comodoca.com/rfc3161"/>
+			<arg value="/td"/>
+			<arg value="sha256"/>
+			<arg value="/v"/>
+			<arg value="/as"/>
+			<arg value="Setup\Output\*.exe"/>
+        </exec>
+		<!--
+C:\WINDOWS\system32>"C:\Programs\signtool\signtool.exe" sign /d "OpenPGP for .NE
+T" /f c:\Projects\didisoft.inc.pfx /p cobra34 /fd sha256 /tr http://timestamp.co
+modoca.com/rfc3161 /td sha256 /as c:\Projects\PGPNet\PGPNetDoc\Output\OpenPGP_Li
+brary_Setup_Trial.exe
+-->		
+	</target>	
+
+	<target name="delete-compiled-examples">
+		<delete dir="FileBrowser\bin"></delete>
+		<delete dir="FileBrowser\obj"></delete>
+	</target>
+	
+	<target name="deploy-help">
+		<ftpUpload host="ftp.didisoft.com" username="didisoft" password="Salamura123" todir="/public_html/sdk/embeddedfs">
+			<fileset basedir="EmbeddedFS\VSdoc">
+                <include name="**/*.*" />
+				<exclude name="**/*.chm" />
+				<exclude name="**/*.mshc" />
+			</fileset>
+		</ftpUpload>	
+    </target>   
+
+
+    <target name="deploy-notes">
+		<ftpUpload host="ftp.didisoft.com" username="didisoft" password="Salamura123" todir="/public_html/external/embeddedfs/">
+			<fileset basedir=".">
+				<include name="ReleaseNotes.txt" />
+			</fileset>
+		</ftpUpload>		
+    </target>   
+	
+	<target name="deploy-nuget-prod">		
+		<property name="nuget_package" value="EmbeddedFS" />
+		<property name="nuget_key" value="df2f716e-6553-3c68-8a6c-fc3e4a945cae" />
+		<property name="nuget_url" value="http://repo.didisoft.com/nasko2deploy/embeddedfs/" />
+		<call target="nuget"></call>		
+    </target>
+
+	<target name="deploy-nuget-trial">
+		<property name="nuget_package" value="EmbeddedFS" />
+		<property name="nuget_key" value="oy2ltqmas32kdy7u26bqckfbkrdr5jmuvdgerbzymoolkm" />
+		<property name="nuget_url" value="https://www.nuget.org/api/v2/package" />
+		<call target="nuget"></call>		
+    </target>
+
+	<target name="deploy">
+		<!--call target="build"></call-->
+		
+		<ftpUpload host="ftp.didisoft.com" username="asp@didisoft.com" password="Silvercolors123" todir="didisoft.com/public_html/">
+			<fileset basedir=".">
+			  <include name="${file}" />			  
+			</fileset>
+		</ftpUpload>		
+
+		<!--property name="nuget_package" value="EmbeddedFS" />
+		<property name="nuget_key" value="oy2ltqmas32kdy7u26bqckfbkrdr5jmuvdgerbzymoolkm" />
+		<property name="nuget_url" value="https://www.nuget.org/api/v2/package" />
+		<call target="nuget"></call-->		
+    </target>
+
+    <target name="deploy-prod">
+		<call target="build-prod"></call>
+		<ftpUpload host="ftp.didisoft.com" username="asp@didisoft.com" password="Silvercolors123" todir="/public_html/dz/">
+			<fileset basedir=".">
+				<include name="${file_prod}" />
+			</fileset>
+		</ftpUpload>		
+		
+		<property name="nuget_package" value="DidiSoft.OpenSsl" />
+		<property name="nuget_key" value="df2f716e-6553-3c68-8a6c-fc3e4a945cae" />
+		<property name="nuget_url" value="http://repo.didisoft.com/nasko2deploy/embeddedfs/" />
+		<call target="nuget"></call>		
+    </target>   
+
+	<target name="deploy-nuget">
+		<property name="nuget_key" value="df2f716e-6553-3c68-8a6c-fc3e4a945cae" />
+		<property name="nuget_url" value="http://repo.didisoft.com/nasko2deploy/embeddedfs/" />
+		<call target="nuget"></call>		
+    </target>   
+	
+    <target name="deploy-src">
+		<call target="build-src"></call>
+		<ftpUpload host="ftp.didisoft.com" username="asp@didisoft.com" password="Silvercolors123" todir="/public_html/dz/">
+			<fileset basedir=".">
+				<include name="${file_src}" />
+			</fileset>
+		</ftpUpload>				
+    </target>   
+
+	<target name="deploy-all">
+		<call target="deploy-notes"></call>
+		<call target="deploy"></call>
+		<call target="deploy-prod"></call>
+		<call target="deploy-src"></call>
+		<echo>
+		Deploy All Done.
+		</echo>				
+    </target>  
+	
+</project>
