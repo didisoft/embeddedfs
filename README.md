@@ -5,14 +5,14 @@ Embedded File System for .NET, contained in a single file or in-memory.
 
 <noscript>![EmbeddedFS API](https://www.didisoft.com/wp-content/uploads/2021/03/EmbeddedFS.png)</noscript>
 
-DidiSoft [EmbeddedFS](/embeddedfs/) is a **file system** located **in memory** or **in a single file**. This is the starting point for getting familiar with the EmbeddedFS API.
+DidiSoft [EmbeddedFS](/didisoft/embeddedfs/) is a **file system** located **in memory** or **in a single file**. This is the starting point for getting familiar with the EmbeddedFS API.
 
 **Contents**
 
 *   [Setup](/embeddedfs/examples/setup/)
 *   [Create/Open the embedded file system](/embeddedfs/examples/drive/).
-*   [Working with folders](/embeddedfs/examples/folder/)
-*   [Working with files](/embeddedfs/examples/file/)
+*   [Working with folders](/didisoft/embeddedfs/wiki/Working-with-folders)
+*   [Working with files](/didisoft/embeddedfs/wiki/Working-with-files)
 
 ### Key Members of EmbeddedFS namespace
 
@@ -38,7 +38,7 @@ DidiSoft [EmbeddedFS](/embeddedfs/) is a **file system** located **in memory** o
 
 <tr>
 
-<td>[EmDrivectoryInfo](/embeddedfs/examples/folder/)</td>
+<td>[EmDrivectoryInfo](/didisoft/embeddedfs/wiki/Working-with-folders)</td>
 
 <td>Exposes similar API as **EmDrivectory**, but from a valid _object reference_</td>
 
@@ -54,7 +54,7 @@ DidiSoft [EmbeddedFS](/embeddedfs/) is a **file system** located **in memory** o
 
 <tr>
 
-<td>[EmFileInfo](/embeddedfs/examples/file/)</td>
+<td>[EmFileInfo](/didisoft/embeddedfs/wiki/Working-with-files)</td>
 
 <td>Exposes similar API as **EmFile**, but from a valid _object reference_</td>
 
